@@ -1,14 +1,14 @@
-Real Exchange Rate (RER) explorer built on IMF monthly CPI and exchange-rate data.
-
-Definitions
------------
-S(t)   = units of Country 2 currency per 1 unit of Country 1 currency
-RER(t) = S(t) * P1(t) / P2(t)
-RER*   = mean of RER(t) over valid months in the selected sample
-Real Index(t) = 100 * RER(t) / RER*
-
-Run:  streamlit run app.py
-"""
+# Real Exchange Rate (RER) explorer built on IMF monthly CPI and exchange-rate data.
+#
+# Definitions
+# -----------
+# S(t)   = units of Country 2 currency per 1 unit of Country 1 currency
+# RER(t) = S(t) * P1(t) / P2(t)
+# RER*   = mean of RER(t) over valid months in the selected sample
+# Real Index(t) = 100 * RER(t) / RER*
+#
+# Run:  streamlit run app.py
+#
 from __future__ import annotations
 
 import io
@@ -34,7 +34,7 @@ HEADERS_JSON = {"Accept": "application/vnd.sdmx.data+json;version=2.0.0"}
 # --------------------------------------------------------------------------
 @st.cache_data
 def country_options() -> dict[str, str]:
-    """Label -> IMF code. ISO3 countries plus the Euro area (G163)."""
+    # Label -> IMF code. ISO3 countries plus the Euro area (G163).
     opts = {f"{c.name} ({c.alpha_3})": c.alpha_3 for c in pycountry.countries}
     opts["Euro area (G163)"] = EURO_AREA
     opts["Kosovo (XKX)"] = "XKX"
@@ -50,7 +50,7 @@ def short_name(label: str) -> str:
 # IMF data retrieval
 # --------------------------------------------------------------------------
 def _parse_period(p: str):
-    """'1976-M01' or '1976-01' -> Timestamp (first of month); otherwise NaT."""
+    # '1976-M01' or '1976-01' -> Timestamp (first of month); otherwise NaT.
     m = re.match(r"^(\d{4})-(?:M)?(\d{1,2})$", str(p).strip())
     if not m:
         return pd.NaT
@@ -97,7 +97,7 @@ FLOW_VERSIONS = {"CPI": ["5.0.0", "+", "~"], "ER": ["4.0.1", "+", "~"]}
 
 
 def _auth_headers() -> dict[str, str]:
-    """Optional IMF subscription key (env var or Streamlit secret). Not needed normally."""
+    # Optional IMF subscription key (env var or Streamlit secret). Not needed normally.
     key = os.environ.get("IMF_SDMX_SUBSCRIPTION_KEY")
     if not key:
         try:
@@ -118,8 +118,8 @@ def _candidate_urls(flow: str, key: str) -> list[str]:
 
 @st.cache_data(ttl=6 * 3600, show_spinner=False)
 def _fetch_cached(flow: str, key: str) -> pd.Series:
-    """Fetch one IMF series. Empty Series = no data; raises if every request failed
-    with something other than 404 (exceptions are not cached by Streamlit)."""
+    # Fetch one IMF series. Empty Series = no data; raises if every request failed
+    # with something other than 404 (exceptions are not cached by Streamlit).
     last_err: Exception | None = None
     extra = _auth_headers()
     for url in _candidate_urls(flow, key):
@@ -147,7 +147,7 @@ def fetch(flow: str, key: str) -> tuple[pd.Series, str | None]:
 
 
 def load_country(code: str) -> tuple[pd.Series, pd.Series, list[str]]:
-    """Return (CPI index, local currency units per USD, warnings)."""
+    # Return (CPI index, local currency units per USD, warnings).
     notes: list[str] = []
     cpi, err1 = fetch("CPI", f"{code}.CPI._T.IX.M")
     xdc, err2 = fetch("ER", f"{code}.XDC_USD.PA_RT.M")
